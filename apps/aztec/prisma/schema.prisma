@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        String                 @id
+  name      String                 @unique
+  employees EmployeesOnCompanies[]
+  customers CustomersOnCompanies[]
+}
+
+model Employee {
+  id        String                 @id
+  username  String                 @unique
+  email     String?                @unique
+  name      String
+  role      String
+  company   EmployeesOnCompanies[]
+  companyId String
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+}
+
+model EmployeesOnCompanies {
+  company    Company  @relation(fields: [companyId], references: [id])
+  companyId  String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([companyId, employeeId])
+}
+
+model CustomersOnCompanies {
+  company    Company  @relation(fields: [companyId], references: [id])
+  companyId  String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([companyId, customerId])
+}
+
+model Invoice {
+  id            Int          @id @default(autoincrement())
+  paymentType   PaymentType
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  appointmentId Int?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  status        Status
+  services      Service[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Service {
+  id            Int          @id @default(autoincrement())
+  serviceType   ServiceType
+  price         Int
+  quantity      Int
+  vehicleType   Vehicle
+  code          String
+  distributor   Distributor
+  invoice       Invoice?     @relation(fields: [invoiceId], references: [id])
+  invoiceId     Int?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  appointmentId Int?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Appointment {
+  id          Int       @id @default(autoincrement())
+  title       String
+  startTime   DateTime
+  endTime     DateTime
+  description String
+  services    Service[]
+  invoice     Invoice[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Customer {
+  id             String                 @id
+  name           String                 @unique
+  city           String
+  email          String                 @unique
+  phone          String                 @unique
+  postalCode     String
+  streetAddress1 String
+  streetAddress2 String?
+  subscription   Boolean
+  returnCounter  Int
+  company        CustomersOnCompanies[]
+  invoices       Invoice[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+}
+
+enum PaymentType {
+  Debit
+  Mastercard
+  Cash
+  Amex
+  Visa
+  Cheque
+  ETransfer
+  Other
+}
+
+enum ServiceType {
+  Windshield
+  DoorGlass
+  BackGlass
+  Sunroof
+  Mirror
+  QuarterGlass
+  ChipSubscription
+  Warranty
+}
+
+enum Vehicle {
+  Suv
+  Truck
+  Sedan
+  Minivan
+  Convertible
+  Hatchback
+  Coupe
+}
+
+enum Distributor {
+  A
+  M
+  O
+}
+
+enum Status {
+  Draft
+  Pending
+  Paid
+  Overdue
+}

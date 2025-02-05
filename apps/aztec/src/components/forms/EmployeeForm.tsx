@@ -2,102 +2,109 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import InputField from "../InputField";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import { employeeSchema } from "@/lib/formValidationSchemas";
-import { useFormState } from "react-dom";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { Employee } from "@/types/schemaTypes";
-import { createEmployee } from "@/lib/queries/create/createQueries";
-import { updateEmployee } from "@/lib/queries/update/updateQueries";
+
+const schema = z.object({
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long!" })
+    .max(20, { message: "Username must be at most 20 characters long!" }),
+  email: z.string().email({ message: "Invalid email address!" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long!" }),
+  firstName: z.string().min(1, { message: "First name is required!" }),
+  lastName: z.string().min(1, { message: "Last name is required!" }),
+  phone: z.string().min(1, { message: "Phone is required!" }),
+  role: z.string().min(1, { message: "role is required!" }),
+});
+
+type Inputs = z.infer<typeof schema>;
 
 const EmployeeForm = ({
   type,
   data,
-  setOpen,
 }: {
   type: "create" | "update";
   data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const router = useRouter();
-
-  // ✅ Form Handling with Zod Validation
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
-  } = useForm<Employee>({
-    resolver: zodResolver(employeeSchema),
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
   });
 
-  const [state, formAction] = useFormState(
-    type === "create" ? createEmployee : updateEmployee,
-    { success: false, error: false }
-  );
-
-  const onSubmit = handleSubmit((formData) => {
-    try {
-      const submissionData = formData;
-      formAction(submissionData);
-    } catch (err) {
-      console.error("❌ Form Submission Error:", err);
-      toast.error("Something went wrong!");
-    }
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
   });
-
-  useEffect(() => {
-    if (state.success) {
-      toast.success(
-        `Employee has been ${type === "create" ? "created" : "updated"}!`
-      );
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new employee" : "Update employee"}
-      </h1>
-
-      <span className="text-xs text-gray-400 font-medium">
+    <form className="flex flex-col gap-8 text-white" onSubmit={onSubmit}>
+      <h1 className="text-xl font-semibold ">Create a new employee</h1>
+      <span className="text-xs text-gray-300 font-medium">
         Authentication Information
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Name"
-          name="name"
+          label="Username"
+          name="username"
+          defaultValue={data?.username}
           register={register}
-          error={errors?.name}
-        />
-        <InputField
-          label="Role"
-          name="role"
-          register={register}
-          error={errors?.role}
+          error={errors?.username}
         />
         <InputField
           label="Email"
           name="email"
+          defaultValue={data?.email}
           register={register}
           error={errors?.email}
         />
         <InputField
-          label="Phone"
-          name="phone"
+          label="Password"
+          name="password"
+          type="password"
+          defaultValue={data?.password}
           register={register}
-          error={errors?.phone}
+          error={errors?.password}
         />
       </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-
-      <button type="submit" className="bg-aztecBlue text-white p-2 rounded-md">
+      <span className="text-xs text-gray-300 font-medium">
+        Personal Information
+      </span>
+      <div className="flex justify-between flex-wrap gap-4">
+        <InputField
+          label="First Name"
+          name="firstName"
+          defaultValue={data?.firstName}
+          register={register}
+          error={errors.firstName}
+        />
+        <InputField
+          label="Last Name"
+          name="lastName"
+          defaultValue={data?.lastName}
+          register={register}
+          error={errors.lastName}
+        />
+        <InputField
+          label="Phone"
+          name="phone"
+          defaultValue={data?.phone}
+          register={register}
+          error={errors.phone}
+        />
+        <InputField
+          label="Role"
+          name="role"
+          defaultValue={data?.role}
+          register={register}
+          error={errors.role}
+        />
+      </div>
+      <button className="bg-aztecBlue text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>
     </form>

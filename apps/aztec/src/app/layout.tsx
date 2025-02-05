@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Aztec Auto Link Pro System",
-  description: "Manages Aztec Data",
+  title: "Aztec Auto Glass System",
+  description: "Aztec inquiries and statistics.",
 };
 
 export default function RootLayout({
@@ -18,12 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={montserrat.className}>
-          {children} <ToastContainer position="bottom-right" theme="dark" />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={montserrat.className}>{children}</body>
+    </html>
   );
 }

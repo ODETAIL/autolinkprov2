@@ -1,7 +1,9 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { role } from "@/lib/data";
+import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarDays,
+  faCoins,
   faFileInvoiceDollar,
   faGear,
   faHouse,
@@ -9,7 +11,6 @@ import {
   faUser,
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
 const menuItems = [
   {
@@ -22,28 +23,34 @@ const menuItems = [
         visible: ["admin", "member"],
       },
       {
-        icon: faUserGroup,
-        label: "Employees",
+        icon: faUser,
+        label: "Employee",
         href: "/list/employees",
         visible: ["admin", "member"],
       },
       {
-        icon: faUser,
-        label: "Customers",
+        icon: faUserGroup,
+        label: "Customer",
         href: "/list/customers",
         visible: ["admin", "member"],
       },
       {
         icon: faCalendarDays,
-        label: "Bookings",
-        href: "/list/appointments",
+        label: "Booking",
+        href: "/appointments",
         visible: ["admin", "member"],
       },
       {
         icon: faFileInvoiceDollar,
-        label: "Invoices",
+        label: "Invoice",
         href: "/list/invoices",
         visible: ["admin", "member"],
+      },
+      {
+        icon: faCoins,
+        label: "Billing",
+        href: "/list/billing",
+        visible: ["admin"],
       },
     ],
   },
@@ -72,14 +79,12 @@ const menuItems = [
   },
 ];
 
-const Menu = async () => {
-  const user = await currentUser();
-  const role = user?.publicMetadata.role as string;
+const Menu = () => {
   return (
     <div className="mt-4 text-sm">
       {menuItems.map((i) => (
         <div className="flex flex-col gap-2" key={i.title}>
-          <span className="hidden lg:block text-aztecBlue font-bold text-md my-4">
+          <span className="hidden lg:block text-white font-semibold my-4">
             {i.title}
           </span>
           {i.items.map((item) => {
@@ -88,9 +93,12 @@ const Menu = async () => {
                 <Link
                   href={item.href}
                   key={item.label}
-                  className="flex items-center justify-center lg:justify-start gap-4 text-white font-medium py-2 md:px-2 rounded-md hover:text-aztecBlue"
+                  className="flex items-center justify-center lg:justify-start gap-4 text-white py-2 md:px-2 rounded-md hover:text-aztecBlue font-normal"
                 >
-                  <FontAwesomeIcon icon={item.icon} className="text-lg w-5 " />
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="text-white w-5"
+                  />
                   <span className="hidden lg:block">{item.label}</span>
                 </Link>
               );

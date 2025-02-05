@@ -2,7 +2,6 @@
 
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
 import {
   LineChart,
   Line,
@@ -80,8 +79,8 @@ const data = [
 const FinanceChart = () => {
   return (
     <div className="bg-aztecBlack-dark rounded-xl w-full h-full p-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-white">Finance</h1>
+      <div className="flex justify-between items-center text-white">
+        <h1 className="text-lg font-semibold">Finance</h1>
         <FontAwesomeIcon icon={faEllipsis} className="text-white w-5" />
       </div>
       <ResponsiveContainer width="100%" height="90%">

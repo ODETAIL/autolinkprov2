@@ -1,80 +1,41 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useFormState } from "react-dom";
-import { toast } from "react-toastify";
-import { FormContainerProps } from "./FormContainer";
-import {
-  deleteAppointment,
-  deleteCustomer,
-  deleteEmployee,
-  deleteInvoice,
-} from "@/lib/queries/delete/deleteQueries";
+import { faClose, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClose } from "@fortawesome/free-solid-svg-icons";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 
-// ✅ Delete action mapping for Drizzle ORM
-const deleteActionMap: Record<string, any> = {
-  employee: deleteEmployee,
-  customer: deleteCustomer,
-  invoice: deleteInvoice,
-  appointment: deleteAppointment,
+type ActionType = {
+  label: "create" | "update" | "delete";
+  icon: IconDefinition;
 };
 
-// ✅ Lazy Loading Forms (Dynamically Imported)
+// USE LAZY LOADING
+
 const EmployeeForm = dynamic(() => import("./forms/EmployeeForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const CustomerForm = dynamic(() => import("./forms/CustomerForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const InvoiceForm = dynamic(() => import("./forms/InvoiceForm"), {
-  loading: () => <h1>Loading...</h1>,
-});
 const AppointmentForm = dynamic(() => import("./forms/AppointmentForm"), {
   loading: () => <h1>Loading...</h1>,
 });
+const InvoiceForm = dynamic(() => import("./forms/InvoiceForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+const ServiceForm = dynamic(() => import("./forms/ServiceForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
 
-// ✅ Form Mapping
-const forms: Record<
-  string,
-  (
-    setOpen: Dispatch<SetStateAction<boolean>>,
-    type: "create" | "update",
-    data?: any,
-    relatedData?: any
-  ) => JSX.Element
-> = {
-  employee: (setOpen, type, data, relatedData) => (
-    <EmployeeForm type={type} data={data} setOpen={setOpen} />
-  ),
-  customer: (setOpen, type, data, relatedData) => (
-    <CustomerForm
-      type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
-    />
-  ),
-  invoice: (setOpen, type, data, relatedData) => (
-    <InvoiceForm
-      type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
-    />
-  ),
-  appointment: (setOpen, type, data, relatedData) => (
-    <AppointmentForm
-      type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
-    />
-  ),
+const forms: {
+  [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
+} = {
+  employee: (type, data) => <EmployeeForm type={type} data={data} />,
+  customer: (type, data) => <CustomerForm type={type} data={data} />,
+  appointment: (type, data) => <AppointmentForm type={type} data={data} />,
+  invoice: (type, data) => <InvoiceForm type={type} data={data} />,
+  service: (type, data) => <ServiceForm type={type} data={data} />,
 };
 
 const FormModal = ({
@@ -82,38 +43,25 @@ const FormModal = ({
   type,
   data,
   id,
-  relatedData,
-}: FormContainerProps & { relatedData?: any }) => {
-  const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
+}: {
+  table: "employee" | "customer" | "appointment" | "invoice" | "service";
+  type: ActionType;
+  data?: any;
+  id?: number;
+}) => {
+  const size = type.label === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
-    type === "create"
-      ? "bg-lamaYellow"
-      : type === "update"
-        ? "bg-lamaSky"
-        : "bg-lamaPurple";
+    type.label === "create"
+      ? "bg-aztecBlue"
+      : type.label === "update"
+        ? "bg-aztecBlue"
+        : "bg-red-700";
 
   const [open, setOpen] = useState(false);
 
-  // ✅ Handle Delete Action & State
   const Form = () => {
-    const [state, formAction] = useFormState(deleteActionMap[table], {
-      success: false,
-      error: false,
-    });
-
-    const router = useRouter();
-
-    useEffect(() => {
-      if (state.success) {
-        toast(`${table} has been deleted!`);
-        setOpen(false);
-        router.refresh();
-      }
-    }, [state, router]);
-
-    return type === "delete" && id ? (
-      <form action={formAction} className="p-4 flex flex-col gap-4">
-        <input type="hidden" name="id" value={id} />
+    return type.label === "delete" && id ? (
+      <form action="" className="p-4 flex flex-col gap-4">
         <span className="text-center font-medium">
           All data will be lost. Are you sure you want to delete this {table}?
         </span>
@@ -121,8 +69,8 @@ const FormModal = ({
           Delete
         </button>
       </form>
-    ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, data, relatedData)
+    ) : type.label === "create" || type.label === "update" ? (
+      forms[table](type.label, data)
     ) : (
       "Form not found!"
     );
@@ -134,11 +82,11 @@ const FormModal = ({
         className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
         onClick={() => setOpen(true)}
       >
-        <Image src={`/${type}.png`} alt="" width={16} height={16} />
+        <FontAwesomeIcon icon={type.icon} className="text-white w-5" />
       </button>
       {open && (
-        <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+        <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+          <div className="bg-aztecBlack-dark p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
             <Form />
             <div
               className="absolute top-4 right-4 cursor-pointer"

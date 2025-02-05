@@ -2,156 +2,117 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import InputField from "../InputField";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import { customerSchema } from "@/lib/formValidationSchemas";
-import { useFormState } from "react-dom";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { createCustomer } from "@/lib/queries/create/createQueries";
-import { updateCustomer } from "@/lib/queries/update/updateQueries";
-import { Customer } from "@/types/schemaTypes";
+
+const schema = z.object({
+  firstName: z.string().min(1, { message: "First name is required!" }),
+  lastName: z.string().min(1, { message: "Last name is required!" }),
+  phone: z.string().min(1, { message: "Phone is required!" }),
+  email: z.string().min(1, { message: "Email is required!" }),
+  streetAddress1: z
+    .string()
+    .min(1, { message: "Street Address 1 is required!" }),
+  streetAddress2: z.string(),
+  postalCode: z.string(),
+  subscriptionWarranty: z.boolean().default(false),
+  companyName: z.string(),
+});
+
+type Inputs = z.infer<typeof schema>;
 
 const CustomerForm = ({
   type,
   data,
-  setOpen,
 }: {
   type: "create" | "update";
   data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: { companies: { id: number; name: string }[] };
 }) => {
-  const router = useRouter();
-
-  // ✅ Initialize Form with Zod Validation
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Customer>({
-    resolver: zodResolver(customerSchema),
-    defaultValues: {
-      name: data?.name || "",
-      email: data?.email || "",
-      phone: data?.phone || "",
-      city: data?.city || "",
-      postalCode: data?.postalCode || "",
-      streetAddress1: data?.streetAddress1 || "",
-      streetAddress2: data?.streetAddress2 || "",
-      subscriptionWarranty: data?.subscriptionWarranty || false,
-      returnCounter: data?.returnCounter || 0,
-      companyId: 2,
-    },
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
   });
 
-  const [state, formAction] = useFormState(
-    type === "create" ? createCustomer : updateCustomer,
-    { success: false, error: false }
-  );
-
-  const onSubmit = handleSubmit((formData) => {
-    try {
-      const submissionData = formData;
-      formAction(submissionData);
-    } catch (err) {
-      console.error("❌ Form Submission Error:", err);
-      toast.error("Something went wrong!");
-    }
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
   });
-
-  useEffect(() => {
-    if (state.success) {
-      toast.success(
-        `Customer has been ${type === "create" ? "created" : "updated"}!`
-      );
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new customer" : "Update customer"}
-      </h1>
-
+      <h1 className="text-xl font-semibold">Create a new customer</h1>
       <span className="text-xs text-gray-400 font-medium">
-        Customer Information
+        Personal Information
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Name"
-          name="name"
+          label="First Name"
+          name="firstName"
+          defaultValue={data?.firstName}
           register={register}
-          error={errors?.name}
+          error={errors.firstName}
+        />
+        <InputField
+          label="Last Name"
+          name="lastName"
+          defaultValue={data?.lastName}
+          register={register}
+          error={errors.lastName}
         />
         <InputField
           label="Email"
           name="email"
+          defaultValue={data?.email}
           register={register}
           error={errors?.email}
         />
         <InputField
           label="Phone"
           name="phone"
+          defaultValue={data?.phone}
           register={register}
-          error={errors?.phone}
+          error={errors.phone}
         />
-        <InputField
-          label="City"
-          name="city"
-          register={register}
-          error={errors?.city}
-        />
-        <InputField
-          label="Postal Code"
-          name="postalCode"
-          register={register}
-          error={errors?.postalCode}
-        />
-      </div>
-
-      <span className="text-xs text-gray-400 font-medium">Address Details</span>
-      <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Street Address 1"
           name="streetAddress1"
+          defaultValue={data?.streetAddress1}
           register={register}
-          error={errors?.streetAddress1}
+          error={errors.streetAddress1}
         />
         <InputField
           label="Street Address 2"
           name="streetAddress2"
+          defaultValue={data?.streetAddress2}
           register={register}
-          error={errors?.streetAddress2}
+          error={errors.streetAddress2}
+        />
+        <InputField
+          label="Postal Code"
+          name="postalCode"
+          defaultValue={data?.postalCode}
+          register={register}
+          error={errors.postalCode}
+        />
+        <InputField
+          label="Company Name"
+          name="companyName"
+          defaultValue={data?.companyName}
+          register={register}
+          error={errors.companyName}
+        />
+        <InputField
+          label="Warranty"
+          name="subscriptionWarranty"
+          defaultValue={data?.subscriptionWarranty}
+          register={register}
+          error={errors.subscriptionWarranty}
+          type="radio"
         />
       </div>
-
-      {/* ✅ Subscription Warranty */}
-      <div className="flex flex-col gap-2 w-full">
-        <label className="text-xs text-gray-500">Subscription Warranty</label>
-        <input
-          type="checkbox"
-          {...register("subscriptionWarranty")}
-          className="w-5 h-5 cursor-pointer"
-        />
-      </div>
-
-      {/* ✅ Return Counter */}
-      <InputField
-        label="Return Counter"
-        name="returnCounter"
-        register={register}
-        error={errors?.returnCounter}
-        type="number"
-      />
-
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-
-      <button type="submit" className="bg-aztecBlue text-white p-2 rounded-md">
+      <button className="bg-blueAztec text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>
     </form>

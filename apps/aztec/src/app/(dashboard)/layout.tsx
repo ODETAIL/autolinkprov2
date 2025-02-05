@@ -12,9 +12,8 @@ export default function DashboardLayout({
     <div className="h-screen flex">
       {/* LEFT */}
       <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4 bg-aztecBlack-dark">
-        <Link href="/" className="flex items-center justify-center p-2">
-          <Image src="/logo.png" alt="logo" width={128} height={128} />
-          {/* <span className="hidden lg:block font-bold">Aztec Auto Glass</span> */}
+        <Link href="/" className="flex items-center justify-center p-4">
+          <Image src="/logo.png" alt="logo" width={145} height={145} />
         </Link>
         <Menu />
       </div>

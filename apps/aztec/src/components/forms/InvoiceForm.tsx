@@ -2,86 +2,116 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import InputField from "../InputField";
+import EnumSelect from "../EnumSelect";
+import { PaymentEnum, StatusEnum } from "@/lib/formEnums";
 
-import { useFormState } from "react-dom";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
-import { Invoice } from "@/types/schemaTypes";
-import { invoiceSchema } from "@/lib/formValidationSchemas";
-import { createInvoice } from "@/lib/queries/create/createQueries";
-import { updateInvoice } from "@/lib/queries/update/updateQueries";
+const schema = z.object({
+  firstName: z.string().min(1, { message: "First name is required!" }),
+  lastName: z.string().min(1, { message: "Last name is required!" }),
+  email: z.string().email({ message: "Invalid email address!" }),
+  phone: z.string().min(1, { message: "Phone is required!" }),
+  streetAddress1: z.string().min(1, { message: "Street Address is required!" }),
+  status: z.enum(["Draft", "Pending", "Paid", "Overdue"]).default("Draft"),
+  paymentType: z.enum([
+    "Debit",
+    "Mastercard",
+    "Cash",
+    "Amex",
+    "Visa",
+    "Cheque",
+    "E-transfer",
+    "Other",
+  ]),
+});
+
+type Inputs = z.infer<typeof schema>;
 
 const InvoiceForm = ({
   type,
   data,
-  setOpen,
-  relatedData,
 }: {
   type: "create" | "update";
   data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
 }) => {
-  const router = useRouter();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Invoice>({
-    resolver: zodResolver(invoiceSchema),
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
   });
 
-  const [state, formAction] = useFormState(
-    type === "create" ? createInvoice : updateInvoice,
-    {
-      success: false,
-      error: false,
-    }
-  );
-
-  const onSubmit = handleSubmit((formData) => {
-    try {
-      const submissionData = formData;
-      formAction(submissionData);
-    } catch (err) {
-      console.error("❌ Form Submission Error:", err);
-      toast.error("Something went wrong!");
-    }
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
   });
-
-  useEffect(() => {
-    if (state.success) {
-      toast(`Exam has been ${type === "create" ? "created" : "updated"}!`);
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new invoice" : "Update the invoice"}
-      </h1>
-
+    <form className="flex flex-col gap-8 text-white" onSubmit={onSubmit}>
+      <h1 className="text-xl font-semibold">Create a new invoice</h1>
+      <span className="text-xs text-gray-300 font-medium">
+        Customer Information
+      </span>
       <div className="flex justify-between flex-wrap gap-4">
-        {data && (
-          <InputField
-            label="Id"
-            name="id"
-            defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
-            hidden
-          />
-        )}
+        <InputField
+          label="First Name"
+          name="firstName"
+          defaultValue={data?.firstName}
+          register={register}
+          error={errors.firstName}
+        />
+        <InputField
+          label="Last Name"
+          name="lastName"
+          defaultValue={data?.lastName}
+          register={register}
+          error={errors.lastName}
+        />
+        <InputField
+          label="Email"
+          name="email"
+          defaultValue={data?.email}
+          register={register}
+          error={errors?.email}
+        />
+        <InputField
+          label="Phone"
+          name="phone"
+          defaultValue={data?.phone}
+          register={register}
+          error={errors.phone}
+        />
+        <InputField
+          label="Address"
+          name="address"
+          defaultValue={data?.streetAddress1}
+          register={register}
+          error={errors.streetAddress1}
+        />
       </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-      <button className="bg-blue-400 text-white p-2 rounded-md">
+      <span className="text-xs text-gray-300 font-medium">
+        Invoice Information
+      </span>
+      <div className="flex justify-center flex-wrap gap-8">
+        <EnumSelect
+          label="Invoice Status"
+          enumObject={StatusEnum}
+          register={register}
+          name="status"
+          errors={errors}
+          defaultValue={data?.status}
+        />
+        <EnumSelect
+          label="Payment Type"
+          enumObject={PaymentEnum}
+          register={register}
+          name="paymentType"
+          errors={errors}
+          defaultValue={data?.paymentType}
+        />
+      </div>
+      <button className="bg-aztecBlue text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>
     </form>

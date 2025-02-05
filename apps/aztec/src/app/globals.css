@@ -5,17 +5,17 @@
 .react-calendar {
   width: 100% !important;
   border: none !important;
-  background-color: #181818 !important;
-  color: white !important;
   font-family: "Montserrat", sans-serif !important;
+  background-color: #181818 !important;
 }
 
 .react-calendar__navigation__label__labelText {
   font-weight: 600;
+  color: white;
 }
 
-.react-calendar__navigation__arrow:hover {
-  background-color: #1194e4 !important;
+.react-calendar__tile--now {
+  background-color: #39b972 !important;
 }
 
 .react-calendar__navigation__label:hover {
@@ -29,6 +29,23 @@
 
 .react-calendar__tile:hover {
   background-color: #1194e4 !important;
+}
+
+.react-calendar__navigation__arrow {
+  color: white;
+}
+
+.react-calendar__navigation__arrow:hover {
+  background-color: #1194e4 !important;
+}
+
+.react-calendar__viewContainer {
+  color: white;
+}
+
+/* BIG CALENDAR STYLES */
+.rbc-calendar {
+  color: white;
 }
 
 .rbc-btn-group:first-child {
@@ -46,12 +63,13 @@
 
 .rbc-btn-group:last-child button {
   border: none !important;
-  background-color: #f1f0ff !important;
+  background-color: #1194e4 !important;
   margin-left: 2px !important;
+  color: white !important;
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #dbdafe !important;
+  background-color: #7cc2ee !important;
   box-shadow: none !important;
 }
 
@@ -76,7 +94,7 @@
 }
 
 .rbc-timeslot-group {
-  background-color: #f7fdff !important;
+  background-color: #181818 !important;
 }
 
 .rbc-day-slot {
@@ -85,10 +103,14 @@
 
 .rbc-event {
   border: none !important;
-  color: white !important;
+  color: #181818 !important;
   padding: 10px !important;
   margin: 10px !important;
   width: 99% !important;
+}
+
+.rbc-current-time-indicator {
+  background-color: #1194e4 !important;
 }
 
 .rbc-event:nth-child(1) {
@@ -117,6 +139,6 @@
 }
 
 .rbc-event-label {
-  color: gray !important;
+  color: white !important;
   margin-bottom: 5px;
 }
