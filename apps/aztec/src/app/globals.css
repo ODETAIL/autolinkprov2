@@ -74,7 +74,7 @@
 }
 
 .rbc-time-view {
-  border-color: #eee !important;
+  border-color: #181818 !important;
 }
 
 .rbc-time-header {
@@ -97,7 +97,8 @@
   background-color: #181818 !important;
 }
 
-.rbc-day-slot {
+.rbc-day-slot,
+.rbc-time-slot {
   font-size: 14px !important;
 }
 
@@ -106,7 +107,7 @@
   color: #181818 !important;
   padding: 10px !important;
   margin: 10px !important;
-  width: 99% !important;
+  width: 90% !important;
 }
 
 .rbc-current-time-indicator {
@@ -139,6 +140,6 @@
 }
 
 .rbc-event-label {
-  color: white !important;
+  color: black !important;
   margin-bottom: 5px;
 }

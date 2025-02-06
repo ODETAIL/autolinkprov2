@@ -12,8 +12,11 @@ export default function DashboardLayout({
     <div className="h-screen flex">
       {/* LEFT */}
       <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4 bg-aztecBlack-dark">
-        <Link href="/" className="flex items-center justify-center p-4">
-          <Image src="/logo.png" alt="logo" width={145} height={145} />
+        <Link
+          href="/"
+          className="flex items-center justify-center p-4 border-b-2 border-b-gray-600"
+        >
+          <Image src="/logo.png" alt="logo" width={130} height={130} />
         </Link>
         <Menu />
       </div>

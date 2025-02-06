@@ -59,7 +59,10 @@ const SingleCustomerPage = () => {
         <div className="bg-aztecBlack-dark p-4 rounded-md text-white">
           <h1 className="text-xl font-semibold">Shortcuts</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-white">
-            <Link className="p-3 rounded-md bg-aztecBlue" href="/">
+            <Link
+              className="p-3 rounded-md bg-aztecBlue"
+              href={`/list/invoices?customerId=customer1`}
+            >
               Customer&apos;s Invoices
             </Link>
             <Link className="p-3 rounded-md bg-aztecBlue" href="/">

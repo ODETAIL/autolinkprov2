@@ -1,11 +1,15 @@
+import { UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import {
   faCommentDots,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
 
-const Navbar = () => {
+const Navbar = async () => {
+  const user = await currentUser();
+  const role = user?.publicMetadata.role as string;
+
   return (
     <div className="flex items-center justify-between p-4">
       {/* SEARCH BAR */}
@@ -30,17 +34,11 @@ const Navbar = () => {
         </div> */}
         <div className="flex flex-col">
           <span className="text-xs leading-3 font-medium text-white">
-            John Doe
+            {user?.fullName}
           </span>
-          <span className="text-[10px] text-gray-200 text-right">Admin</span>
+          <span className="text-[10px] text-gray-300 text-right">{role}</span>
         </div>
-        <Image
-          src="/logo.png"
-          alt=""
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
+        <UserButton />
       </div>
     </div>
   );

@@ -100,6 +100,7 @@ model Customer {
   streetAddress2 String?
   subscription   Boolean
   returnCounter  Int
+  lastVisit      DateTime               @default(now())
   company        CustomersOnCompanies[]
   invoices       Invoice[]
   createdAt      DateTime               @default(now())

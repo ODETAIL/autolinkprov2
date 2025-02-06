@@ -2,7 +2,10 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import { role, studentsData } from "@/lib/data";
+import prisma from "@/lib/prisma";
+import { ITEM_PER_PAGE } from "@/lib/settings";
+import { calculateTotalPrice } from "@/lib/util";
+import { auth } from "@clerk/nextjs/server";
 import {
   faEye,
   faFilter,
@@ -11,70 +14,77 @@ import {
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  Appointment,
+  Customer,
+  Invoice,
+  Prisma,
+  Service,
+} from "@prisma/client";
 import Link from "next/link";
 
-type Invoice = {
-  id: number;
-  name: string;
-  phone: string;
-  status: string;
-  codes: string[];
-  amount: string;
-};
+type InvoiceList = Invoice & { customer: Customer } & {
+  appointment: Appointment;
+} & { services: Service[] };
 
-const columns = [
-  {
-    header: "Info",
-    accessor: "info",
-  },
-  {
-    header: "Invoice #",
-    accessor: "id",
-    className: "hidden md:table-cell",
-  },
-  {
-    header: "Phone",
-    accessor: "phone",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Status",
-    accessor: "status",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Codes",
-    accessor: "codes",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Amount",
-    accessor: "amount",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Actions",
-    accessor: "action",
-  },
-];
+const InvoiceListPage = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) => {
+  const { sessionClaims } = auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-const InvoiceListPage = () => {
-  const renderRow = (item: Invoice) => (
+  const columns = [
+    {
+      header: "Info",
+      accessor: "info",
+    },
+    {
+      header: "Phone",
+      accessor: "phone",
+      className: "hidden lg:table-cell",
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      className: "hidden lg:table-cell",
+    },
+    {
+      header: "Codes",
+      accessor: "codes",
+      className: "hidden lg:table-cell",
+    },
+    {
+      header: "Amount",
+      accessor: "amount",
+      className: "hidden lg:table-cell",
+    },
+    {
+      header: "Actions",
+      accessor: "action",
+    },
+  ];
+
+  const renderRow = (item: InvoiceList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-aztecBlack-light text-sm hover:bg-aztecBlue text-white"
     >
       <td className="flex items-center gap-4 p-4">
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-400">{item.status}</p>
+          <h3 className="font-semibold">{item.customer.name}</h3>
+          <p className="text-xs text-gray-300">#{item.id}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.id}</td>
-      <td className="hidden md:table-cell">{item.phone}</td>
+      <td className="hidden md:table-cell">{item.customer.phone}</td>
       <td className="hidden md:table-cell">{item.status}</td>
-      <td className="hidden md:table-cell">{item.codes?.join(",")}</td>
-      <td className="hidden md:table-cell text-aztecGreen">{item.amount}</td>
+      <td className="hidden md:table-cell">
+        {item.services.map((service) => service.code).join(",")}
+      </td>
+      <td className="hidden md:table-cell text-aztecGreen">
+        {calculateTotalPrice(item.services)}
+      </td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/invoices/${item.id}`}>
@@ -93,6 +103,42 @@ const InvoiceListPage = () => {
       </td>
     </tr>
   );
+
+  const { page, ...queryParams } = searchParams;
+
+  const p = page ? parseInt(page) : 1;
+
+  const query: Prisma.InvoiceWhereInput = {};
+
+  if (queryParams) {
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (value !== undefined) {
+        switch (key) {
+          case "customerId":
+            query.customerId = value;
+            break;
+          case "search":
+            query.id = { equals: Number(value) };
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  const [data, count] = await prisma.$transaction([
+    prisma.invoice.findMany({
+      where: query,
+      include: {
+        customer: true,
+        services: true,
+        appointment: true,
+      },
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (p - 1),
+    }),
+    prisma.invoice.count({ where: query }),
+  ]);
 
   return (
     <div className="bg-aztecBlack-dark p-4 rounded-md flex-1 m-4 mt-0">
@@ -118,9 +164,9 @@ const InvoiceListPage = () => {
         </div>
       </div>
       {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={studentsData} />
+      <Table columns={columns} renderRow={renderRow} data={data} />
       {/* PAGINATION */}
-      <Pagination />
+      <Pagination page={p} count={count} />
     </div>
   );
 };

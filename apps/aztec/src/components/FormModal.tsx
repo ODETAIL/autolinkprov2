@@ -47,7 +47,7 @@ const FormModal = ({
   table: "employee" | "customer" | "appointment" | "invoice" | "service";
   type: ActionType;
   data?: any;
-  id?: number;
+  id?: number | string;
 }) => {
   const size = type.label === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
