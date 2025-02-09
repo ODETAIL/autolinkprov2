@@ -22,13 +22,23 @@ const InputField = ({
   return (
     <div className="flex flex-col gap-2 w-full md:w-1/4">
       <label className="text-xs text-gray-400">{label}</label>
-      <input
-        type={type}
-        {...register(name)}
-        className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark"
-        {...inputProps}
-        defaultValue={defaultValue}
-      />
+      {type === "textarea" ? (
+        <textarea
+          {...register(name)}
+          defaultValue={defaultValue}
+          className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark h-10 lg:h-28 resize-none"
+          {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      ) : (
+        <input
+          type={type}
+          {...register(name)}
+          defaultValue={defaultValue}
+          className={`${type !== "checkbox" && "ring-[1.5px]"} ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark`}
+          {...inputProps}
+        />
+      )}
+
       {error?.message && (
         <p className="text-xs text-red-400">{error.message.toString()}</p>
       )}

@@ -73,7 +73,9 @@ const InvoiceListPage = async ({
     >
       <td className="flex items-center gap-4 p-4">
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.customer.name}</h3>
+          <h3 className="font-semibold">
+            {item.customer.firstName} {item.customer.lastName}
+          </h3>
           <p className="text-xs text-gray-300">#{item.id}</p>
         </div>
       </td>
@@ -119,6 +121,7 @@ const InvoiceListPage = async ({
             break;
           case "search":
             query.id = { equals: Number(value) };
+            break;
           default:
             break;
         }

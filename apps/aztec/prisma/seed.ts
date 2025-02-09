@@ -24,25 +24,24 @@ async function main() {
   });
 
   //EMPLOYEE
-  for (let i = 1; i <= 25; i++) {
+  for (let i = 1; i <= 4; i++) {
     await prisma.employee.create({
       data: {
-        id: `employeeId${i}`,
         username: `employeeId${i}`,
         name: `EName ${i}`,
         role: i % 2 === 0 ? "admin" : "member",
-        companyId: `companyId${Math.ceil(i / 2) % 25 || 25}`,
+        companyId: `companyId${Math.ceil(i / 2) % 4 || 4}`,
         email: `employee${i}@example.com`,
       },
     });
   }
 
   // CUSTOMER
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 1; i <= 3; i++) {
     await prisma.customer.create({
       data: {
-        id: `customer${i}`, // Unique ID
-        name: `CName${i}`,
+        firstName: `CFirstName${i}`,
+        lastName: `CLastName${i}`,
         city: `CCity${i}`,
         email: `customer${i}@example.com`,
         phone: `123-456-789${i}`,
@@ -56,44 +55,44 @@ async function main() {
   }
 
   // APPOINTMENT
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 1; i <= 3; i++) {
     await prisma.appointment.create({
       data: {
         title: `Appointment ${i}`,
-        startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
-        endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
+        startTime: new Date(new Date().setHours(new Date().getHours() - 8)),
+        endTime: new Date(new Date().setHours(new Date().getHours() - 7)),
         description: `Description${i}`,
       },
     });
   }
 
   // INVOICE
-  for (let i = 1; i <= 15; i++) {
-    await prisma.invoice.create({
-      data: {
-        customerId: `customer${(i % 15) + 1}`,
-        appointmentId: (i % 15) + 1,
-        paymentType: i % 2 === 0 ? PaymentType.Debit : PaymentType.Mastercard,
-        status: i % 2 === 0 ? Status.Draft : Status.Paid,
-      },
-    });
-  }
+  // for (let i = 1; i <= 3; i++) {
+  //   await prisma.invoice.create({
+  //     data: {
+  //       customerId: `customer${(i % 3) + 1}`,
+  //       appointmentId: (i % 3) + 1,
+  //       paymentType: i % 2 === 0 ? PaymentType.Debit : PaymentType.Mastercard,
+  //       status: i % 2 === 0 ? Status.Draft : Status.Paid,
+  //     },
+  //   });
+  // }
 
   // SERVICE
-  for (let i = 1; i <= 15; i++) {
-    await prisma.service.create({
-      data: {
-        serviceType: ServiceType.Windshield,
-        price: (i % 300) + 1,
-        quantity: 1,
-        vehicleType: Vehicle.Suv,
-        code: `DW${(i % 100) + 1}`,
-        distributor: Distributor.A,
-        invoiceId: (i % 15) + 1,
-        appointmentId: (i % 15) + 1,
-      },
-    });
-  }
+  // for (let i = 1; i <= 5; i++) {
+  //   await prisma.service.create({
+  //     data: {
+  //       serviceType: ServiceType.Windshield,
+  //       price: (i % 300) + 1,
+  //       quantity: 1,
+  //       vehicleType: Vehicle.Suv,
+  //       code: `DW${(i % 100) + 1}`,
+  //       distributor: Distributor.A,
+  //       invoiceId: (i % 5) + 1,
+  //       appointmentId: (i % 5) + 1,
+  //     },
+  //   });
+  // }
 }
 
 main()

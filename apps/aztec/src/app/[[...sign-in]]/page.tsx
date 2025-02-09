@@ -25,12 +25,15 @@ const LoginPage = () => {
       <SignIn.Root>
         <SignIn.Step
           name="start"
-          className="bg-aztecBlack-dark p-12 rounded-md shadow-2xl flex flex-col gap-2"
+          className="bg-aztecBlack-dark p-12 rounded-md shadow-2xl flex flex-col gap-4 justify-center items-center"
         >
-          <h1 className="text-xl font-bold flex items-center gap-2 text-white">
-            <Image src="/logo.png" alt="" width={24} height={24} />
-            Aztec Auto Glass
-          </h1>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={170}
+            height={170}
+            className="mb-4"
+          />
           <h2 className="text-gray-400">Sign in to your account</h2>
           <Clerk.GlobalError className="text-sm text-red-400" />
           <Clerk.Field name="identifier" className="flex flex-col gap-2">

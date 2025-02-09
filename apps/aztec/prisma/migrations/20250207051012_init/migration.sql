@@ -23,12 +23,12 @@ CREATE TABLE "Company" (
 
 -- CreateTable
 CREATE TABLE "Employee" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid(),
     "username" TEXT NOT NULL,
     "email" TEXT,
     "name" TEXT NOT NULL,
     "role" TEXT NOT NULL,
-    "companyId" TEXT NOT NULL,
+    "companyId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -92,6 +92,7 @@ CREATE TABLE "Appointment" (
     "startTime" TIMESTAMP(3) NOT NULL,
     "endTime" TIMESTAMP(3) NOT NULL,
     "description" TEXT NOT NULL,
+    "customerId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -100,16 +101,19 @@ CREATE TABLE "Appointment" (
 
 -- CreateTable
 CREATE TABLE "Customer" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "city" TEXT NOT NULL,
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid(),
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT,
+    "city" TEXT,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "postalCode" TEXT NOT NULL,
     "streetAddress1" TEXT NOT NULL,
     "streetAddress2" TEXT,
+    "notes" TEXT,
     "subscription" BOOLEAN NOT NULL,
     "returnCounter" INTEGER NOT NULL,
+    "lastVisit" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -124,9 +128,6 @@ CREATE UNIQUE INDEX "Employee_username_key" ON "Employee"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_email_key" ON "Employee"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Customer_name_key" ON "Customer"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
@@ -157,3 +158,6 @@ ALTER TABLE "Service" ADD CONSTRAINT "Service_invoiceId_fkey" FOREIGN KEY ("invo
 
 -- AddForeignKey
 ALTER TABLE "Service" ADD CONSTRAINT "Service_appointmentId_fkey" FOREIGN KEY ("appointmentId") REFERENCES "Appointment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Appointment" ADD CONSTRAINT "Appointment_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;

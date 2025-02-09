@@ -1,3 +1,5 @@
+import { Customer } from "@prisma/client";
+
 export const formatDate = (date: Date): string => {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -46,8 +48,20 @@ const getLatestMonday = (): Date => {
 };
 
 export const adjustScheduleToCurrentWeek = (
-  appointments: { title: string; start: Date; end: Date }[]
-): { title: string; start: Date; end: Date }[] => {
+  appointments: {
+    id: number;
+    title: string;
+    start: Date;
+    end: Date;
+    resource: Customer | null;
+  }[]
+): {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  resource: Customer | null;
+}[] => {
   const latestMonday = getLatestMonday();
 
   return appointments.map((appointment) => {
@@ -72,9 +86,24 @@ export const adjustScheduleToCurrentWeek = (
     );
 
     return {
+      id: appointment.id,
       title: appointment.title,
       start: adjustedStartDate,
       end: adjustedEndDate,
+      resource: appointment.resource,
     };
   });
+};
+
+export const calculateInvoiceTotals = (services: { price: number }[]) => {
+  const subtotal = services.reduce((acc, service) => acc + service.price, 0);
+  const taxRate = 0.05; // 5% GST
+  const gst = subtotal * taxRate;
+  const total = subtotal + gst;
+
+  return {
+    subtotal: subtotal.toFixed(2),
+    gst: gst.toFixed(2),
+    total: total.toFixed(2),
+  };
 };

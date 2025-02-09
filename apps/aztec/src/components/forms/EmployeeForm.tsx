@@ -2,48 +2,56 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import InputField from "../InputField";
-
-const schema = z.object({
-  username: z
-    .string()
-    .min(3, { message: "Username must be at least 3 characters long!" })
-    .max(20, { message: "Username must be at most 20 characters long!" }),
-  email: z.string().email({ message: "Invalid email address!" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long!" }),
-  firstName: z.string().min(1, { message: "First name is required!" }),
-  lastName: z.string().min(1, { message: "Last name is required!" }),
-  phone: z.string().min(1, { message: "Phone is required!" }),
-  role: z.string().min(1, { message: "role is required!" }),
-});
-
-type Inputs = z.infer<typeof schema>;
+import { employeeSchema, EmployeeSchema } from "@/lib/formValidationSchemas";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { createEmployee, updateEmployee } from "@/lib/actions/employee";
 
 const EmployeeForm = ({
   type,
   data,
+  setOpen,
 }: {
   type: "create" | "update";
   data?: any;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Inputs>({
-    resolver: zodResolver(schema),
+  } = useForm<EmployeeSchema>({
+    resolver: zodResolver(employeeSchema),
   });
+  const router = useRouter();
+  const [state, formAction] = useFormState(
+    type === "create" ? createEmployee : updateEmployee,
+    {
+      success: false,
+      error: false,
+    }
+  );
+
+  useEffect(() => {
+    if (state.success) {
+      toast(`Employee has been ${type === "create" ? "created" : "updated"}!`);
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state, router, type]);
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+    formAction(data);
   });
 
   return (
     <form className="flex flex-col gap-8 text-white" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold ">Create a new employee</h1>
+      <h1 className="text-xl font-semibold ">
+        {type === "create" ? "Create New Employee" : "Update Employee"}
+      </h1>
       <span className="text-xs text-gray-300 font-medium">
         Authentication Information
       </span>

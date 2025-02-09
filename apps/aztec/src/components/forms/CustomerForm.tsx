@@ -2,51 +2,60 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import InputField from "../InputField";
-
-const schema = z.object({
-  firstName: z.string().min(1, { message: "First name is required!" }),
-  lastName: z.string().min(1, { message: "Last name is required!" }),
-  phone: z.string().min(1, { message: "Phone is required!" }),
-  email: z.string().min(1, { message: "Email is required!" }),
-  streetAddress1: z
-    .string()
-    .min(1, { message: "Street Address 1 is required!" }),
-  streetAddress2: z.string(),
-  postalCode: z.string(),
-  subscriptionWarranty: z.boolean().default(false),
-  companyName: z.string(),
-});
-
-type Inputs = z.infer<typeof schema>;
+import { customerSchema, CustomerSchema } from "@/lib/formValidationSchemas";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { createCustomer, updateCustomer } from "@/lib/actions/customer";
+import { toast } from "react-toastify";
 
 const CustomerForm = ({
   type,
   data,
+  setOpen,
 }: {
   type: "create" | "update";
   data?: any;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Inputs>({
-    resolver: zodResolver(schema),
+  } = useForm<CustomerSchema>({
+    resolver: zodResolver(customerSchema),
   });
+  const router = useRouter();
+  const [state, formAction] = useFormState(
+    type === "create" ? createCustomer : updateCustomer,
+    {
+      success: false,
+      error: false,
+    }
+  );
+
+  useEffect(() => {
+    if (state.success) {
+      toast(`Customer has been ${type === "create" ? "created" : "updated"}!`);
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state, router, type]);
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+    formAction(data);
   });
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">Create a new customer</h1>
+      <h1 className="text-xl font-semibold text-white">
+        {type === "create" ? "Create New Customer" : "Update Customer"}
+      </h1>
       <span className="text-xs text-gray-400 font-medium">
         Personal Information
       </span>
-      <div className="flex justify-between flex-wrap gap-4">
+      <div className="flex justify-between flex-wrap gap-4 text-white">
         <InputField
           label="First Name"
           name="firstName"
@@ -109,10 +118,10 @@ const CustomerForm = ({
           defaultValue={data?.subscriptionWarranty}
           register={register}
           error={errors.subscriptionWarranty}
-          type="radio"
+          type="checkbox"
         />
       </div>
-      <button className="bg-blueAztec text-white p-2 rounded-md">
+      <button className="bg-aztecBlue text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>
     </form>

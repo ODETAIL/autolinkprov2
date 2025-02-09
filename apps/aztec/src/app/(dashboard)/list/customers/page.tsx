@@ -53,7 +53,9 @@ const renderRow = (item: Customer) => (
   >
     <td className="flex items-center gap-4 p-4">
       <div className="flex flex-col">
-        <h3 className="font-semibold">{item.name}</h3>
+        <h3 className="font-semibold">
+          {item.firstName} {item.lastName}
+        </h3>
         <p className="text-xs text-gray-400">{item?.email}</p>
       </div>
     </td>
@@ -95,7 +97,7 @@ const CustomerListPage = async ({
       if (value !== undefined) {
         switch (key) {
           case "search":
-            query.name = { contains: value, mode: "insensitive" };
+            query.firstName = { contains: value, mode: "insensitive" };
             break;
           default:
             break;

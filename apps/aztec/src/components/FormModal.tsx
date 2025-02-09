@@ -1,13 +1,29 @@
 "use client";
 
+import { deleteAppointment } from "@/lib/actions/appointment";
+import { deleteCustomer } from "@/lib/actions/customer";
+import { deleteEmployee } from "@/lib/actions/employee";
+import { deleteInvoice } from "@/lib/actions/invoice";
+import { deleteService } from "@/lib/actions/service";
 import { faClose, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useFormState } from "react-dom";
+import { toast } from "react-toastify";
 
 type ActionType = {
   label: "create" | "update" | "delete";
   icon: IconDefinition;
+};
+
+const deleteActionMap = {
+  employee: deleteEmployee,
+  customer: deleteCustomer,
+  appointment: deleteAppointment,
+  invoice: deleteInvoice,
+  service: deleteService,
 };
 
 // USE LAZY LOADING
@@ -29,13 +45,27 @@ const ServiceForm = dynamic(() => import("./forms/ServiceForm"), {
 });
 
 const forms: {
-  [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
+  [key: string]: (
+    type: "create" | "update",
+    setOpen: Dispatch<SetStateAction<boolean>>,
+    data?: any
+  ) => JSX.Element;
 } = {
-  employee: (type, data) => <EmployeeForm type={type} data={data} />,
-  customer: (type, data) => <CustomerForm type={type} data={data} />,
-  appointment: (type, data) => <AppointmentForm type={type} data={data} />,
-  invoice: (type, data) => <InvoiceForm type={type} data={data} />,
-  service: (type, data) => <ServiceForm type={type} data={data} />,
+  employee: (type, data, setOpen) => (
+    <EmployeeForm type={type} data={data} setOpen={setOpen} />
+  ),
+  customer: (type, data, setOpen) => (
+    <CustomerForm type={type} data={data} setOpen={setOpen} />
+  ),
+  appointment: (type, data, setOpen) => (
+    <AppointmentForm type={type} data={data} setOpen={setOpen} />
+  ),
+  invoice: (type, data, setOpen) => (
+    <InvoiceForm type={type} data={data} setOpen={setOpen} />
+  ),
+  service: (type, data, setOpen) => (
+    <ServiceForm type={type} data={data} setOpen={setOpen} />
+  ),
 };
 
 const FormModal = ({
@@ -45,6 +75,7 @@ const FormModal = ({
   id,
 }: {
   table: "employee" | "customer" | "appointment" | "invoice" | "service";
+
   type: ActionType;
   data?: any;
   id?: number | string;
@@ -60,8 +91,26 @@ const FormModal = ({
   const [open, setOpen] = useState(false);
 
   const Form = () => {
+    const [state, formAction] = useFormState(deleteActionMap[table], {
+      success: false,
+      error: false,
+    });
+
+    const router = useRouter();
+
+    useEffect(() => {
+      if (state.success) {
+        toast(`${table} has been deleted!`);
+        setOpen(false);
+        router.refresh();
+      }
+    }, [state, router]);
     return type.label === "delete" && id ? (
-      <form action="" className="p-4 flex flex-col gap-4">
+      <form
+        action={formAction}
+        className="p-4 flex flex-col gap-4 bg-aztecBlack-dark text-white"
+      >
+        <input type="text | number" name="id" defaultValue={id} hidden />
         <span className="text-center font-medium">
           All data will be lost. Are you sure you want to delete this {table}?
         </span>
@@ -70,7 +119,7 @@ const FormModal = ({
         </button>
       </form>
     ) : type.label === "create" || type.label === "update" ? (
-      forms[table](type.label, data)
+      forms[table](type.label, data, setOpen)
     ) : (
       "Form not found!"
     );
@@ -86,7 +135,9 @@ const FormModal = ({
       </button>
       {open && (
         <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
-          <div className="bg-aztecBlack-dark p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+          <div
+            className={`bg-aztecBlack-dark p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%]  ${table === "invoice" || table === "appointment" ? "xl:w-[70%]" : "xl:w-[50%] 2xl:w-[40%]"}`}
+          >
             <Form />
             <div
               className="absolute top-4 right-4 cursor-pointer"
