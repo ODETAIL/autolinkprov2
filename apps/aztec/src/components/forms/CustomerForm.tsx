@@ -37,7 +37,6 @@ const CustomerForm = ({
     }
   );
 
-  // console.log(data);
   useEffect(() => {
     if (state.success) {
       toast(`Customer has been ${type === "create" ? "created" : "updated"}!`);

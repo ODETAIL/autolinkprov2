@@ -13,13 +13,15 @@ export const createEmployee = async (
   currentState: CurrentState,
   data: EmployeeSchema
 ) => {
+  console.log(data);
   try {
     const user = await clerkClient.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
-      publicMetadata: { role: "member" },
+      emailAddress: [data.email],
+      publicMetadata: { role: data.role },
     });
 
     await prisma.employee.create({
@@ -27,9 +29,10 @@ export const createEmployee = async (
         id: user.id,
         username: data.username,
         name: `${data.firstName} ${data.lastName}`,
+        email: data.email,
         role: data.role,
         company: {},
-        companyId: "O Detail",
+        companyId: "Aztec",
       },
     });
 

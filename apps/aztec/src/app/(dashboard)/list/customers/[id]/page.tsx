@@ -4,6 +4,7 @@ import Table from "@/components/Table";
 import prisma from "@/lib/prisma";
 import { calculateTotalPrice, formatDate, formatPhoneNumber } from "@/lib/util";
 import {
+  faCheckCircle,
   faClockRotateLeft,
   faEnvelope,
   faEye,
@@ -197,6 +198,15 @@ const SingleCustomerPage = async ({
                     className="text-aztecBlue w-5"
                   />
                   <span>{customer.returnCounter}</span>
+                </div>
+                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                  <FontAwesomeIcon
+                    icon={faCheckCircle}
+                    className="text-aztecBlue w-5"
+                  />
+                  <span>
+                    {customer.subscription ? "Has Warranty" : "No Warranty"}
+                  </span>
                 </div>
               </div>
             </div>

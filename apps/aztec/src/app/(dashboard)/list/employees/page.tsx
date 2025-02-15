@@ -4,6 +4,7 @@ import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
+import { formatDate } from "@/lib/util";
 import { auth } from "@clerk/nextjs/server";
 import {
   faEye,
@@ -34,6 +35,11 @@ const columns = [
     accessor: "role",
     className: "hidden lg:table-cell",
   },
+  {
+    header: "Created At",
+    accessor: "createdAt",
+    className: "hidden lg:table-cell",
+  },
   ...(role === "admin"
     ? [
         {
@@ -57,6 +63,9 @@ const renderRow = (item: Employee) => (
     </td>
     <td className="hidden md:table-cell text-white">{item.email}</td>
     <td className="hidden md:table-cell text-white">{item.role}</td>
+    <td className="hidden md:table-cell text-white">
+      {formatDate(item.createdAt)}
+    </td>
     <td>
       <div className="flex items-center gap-2">
         <Link href={`/list/employees/${item.id}`}>
