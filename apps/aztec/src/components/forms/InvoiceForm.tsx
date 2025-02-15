@@ -23,11 +23,13 @@ import { toast } from "react-toastify";
 const InvoiceForm = ({
   type,
   data,
+  id,
   setOpen,
 }: {
   type: "create" | "update";
-  data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  data?: any;
+  id?: number | string;
 }) => {
   const {
     register,
@@ -58,8 +60,13 @@ const InvoiceForm = ({
     }
   }, [state, router, type]);
 
-  const onSubmit = handleSubmit((data) => {
-    formAction({ ...data, services });
+  const onSubmit = handleSubmit((formData) => {
+    formAction({
+      ...formData,
+      id: id as number,
+      customerId: data.customerId,
+      services,
+    });
   });
 
   const handleServiceAdded = (newService: ServiceSchema) => {
@@ -90,35 +97,35 @@ const InvoiceForm = ({
               <InputField
                 label="First Name"
                 name="firstName"
-                defaultValue={data?.firstName}
+                defaultValue={data?.customer.firstName}
                 register={register}
                 error={errors.firstName}
               />
               <InputField
                 label="Last Name"
                 name="lastName"
-                defaultValue={data?.lastName}
+                defaultValue={data?.customer.lastName}
                 register={register}
                 error={errors.lastName}
               />
               <InputField
                 label="Email"
                 name="email"
-                defaultValue={data?.email}
+                defaultValue={data?.customer.email}
                 register={register}
                 error={errors?.email}
               />
               <InputField
                 label="Phone"
                 name="phone"
-                defaultValue={data?.phone}
+                defaultValue={data?.customer.phone}
                 register={register}
                 error={errors.phone}
               />
               <InputField
                 label="Address"
                 name="streetAddress1"
-                defaultValue={data?.streetAddress1}
+                defaultValue={data?.customer.streetAddress1}
                 register={register}
                 error={errors.streetAddress1}
               />

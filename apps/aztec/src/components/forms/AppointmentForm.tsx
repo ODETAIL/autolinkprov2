@@ -20,15 +20,23 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import useIsMobile from "@/lib/useIsMobile";
+import moment from "moment";
+import { useAppDispatch } from "@/lib/hooks";
+import { updateEvent } from "@/lib/features/calendar/calendarSlice";
+import { convertDatesToISO } from "@/lib/util";
 
 const AppointmentForm = ({
   type,
   data,
   setOpen,
+  setOpenEventModal,
+  id,
 }: {
   type: "create" | "update";
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpenEventModal?: Dispatch<SetStateAction<boolean>>;
+  id?: number | string;
 }) => {
   const {
     register,
@@ -39,11 +47,12 @@ const AppointmentForm = ({
   });
 
   const [services, setServices] = useState<ServiceSchema[]>(
-    data?.services || []
+    data?.services || data?.resource?.services || []
   );
   const [showServiceModal, setShowServiceModal] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [state, formAction] = useFormState(
     type === "create" ? createAppointment : updateAppointment,
     {
@@ -57,13 +66,24 @@ const AppointmentForm = ({
       toast(
         `Appointment has been ${type === "create" ? "created" : "updated"}!`
       );
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type]);
 
-  const onSubmit = handleSubmit((data) => {
-    formAction({ ...data, services });
+      setOpen(false);
+      setOpenEventModal?.(false);
+      router.refresh();
+
+      if (type === "update") {
+        const convertedDatesToISO = convertDatesToISO(data);
+        dispatch(updateEvent(convertedDatesToISO));
+      }
+    }
+  }, [state, type, data, dispatch, router]);
+
+  const onSubmit = handleSubmit((formData) => {
+    formAction({
+      ...formData,
+      id: id as number,
+      services,
+    });
   });
 
   const handleServiceAdded = (newService: ServiceSchema) => {
@@ -95,35 +115,55 @@ const AppointmentForm = ({
               <InputField
                 label="First Name"
                 name="firstName"
-                defaultValue={data?.firstName}
+                defaultValue={
+                  data?.resource?.customer
+                    ? data?.resource?.customer.firstName
+                    : data?.firstName
+                }
                 register={register}
                 error={errors.firstName}
               />
               <InputField
                 label="Last Name"
                 name="lastName"
-                defaultValue={data?.lastName}
+                defaultValue={
+                  data?.resource?.customer
+                    ? data?.resource?.customer.lastName
+                    : data?.lastName
+                }
                 register={register}
                 error={errors.lastName}
               />
               <InputField
                 label="Email"
                 name="email"
-                defaultValue={data?.email}
+                defaultValue={
+                  data?.resource?.customer
+                    ? data?.resource?.customer.email
+                    : data?.email
+                }
                 register={register}
                 error={errors?.email}
               />
               <InputField
                 label="Phone"
                 name="phone"
-                defaultValue={data?.phone}
+                defaultValue={
+                  data?.resource?.customer
+                    ? data?.resource?.customer.phone
+                    : data?.phone
+                }
                 register={register}
                 error={errors.phone}
               />
               <InputField
                 label="Address"
-                name="address"
-                defaultValue={data?.streetAddress1}
+                name="streetAddress1"
+                defaultValue={
+                  data?.resource?.customer
+                    ? data?.resource?.customer.streetAddress1
+                    : data?.streetAddress1
+                }
                 register={register}
                 error={errors.streetAddress1}
               />
@@ -143,7 +183,11 @@ const AppointmentForm = ({
               <InputField
                 label="Start Time"
                 name="startTime"
-                defaultValue={data?.startTime}
+                defaultValue={
+                  data?.start
+                    ? moment(data.start).format("YYYY-MM-DDTHH:mm")
+                    : data?.startTime
+                }
                 register={register}
                 error={errors.startTime}
                 type="datetime-local"
@@ -151,7 +195,11 @@ const AppointmentForm = ({
               <InputField
                 label="End Time"
                 name="endTime"
-                defaultValue={data?.endTime}
+                defaultValue={
+                  data?.end
+                    ? moment(data.end).format("YYYY-MM-DDTHH:mm")
+                    : data?.endTime
+                }
                 register={register}
                 error={errors.endTime}
                 type="datetime-local"
@@ -160,7 +208,9 @@ const AppointmentForm = ({
                 label="Notes"
                 name="notes"
                 type="textarea"
-                defaultValue={data?.notes}
+                defaultValue={
+                  data?.description ? data?.description : data?.notes
+                }
                 register={register}
                 error={errors.notes}
               />

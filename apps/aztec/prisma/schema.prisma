@@ -68,6 +68,7 @@ model Service {
   quantity      Int
   vehicleType   Vehicle
   code          String
+  notes         String?
   distributor   Distributor
   invoice       Invoice?     @relation(fields: [invoiceId], references: [id])
   invoiceId     Int?

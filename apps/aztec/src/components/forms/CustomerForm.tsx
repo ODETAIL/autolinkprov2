@@ -13,11 +13,13 @@ import { toast } from "react-toastify";
 const CustomerForm = ({
   type,
   data,
+  id,
   setOpen,
 }: {
   type: "create" | "update";
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  id?: number | string;
 }) => {
   const {
     register,
@@ -35,6 +37,7 @@ const CustomerForm = ({
     }
   );
 
+  // console.log(data);
   useEffect(() => {
     if (state.success) {
       toast(`Customer has been ${type === "create" ? "created" : "updated"}!`);
@@ -43,8 +46,8 @@ const CustomerForm = ({
     }
   }, [state, router, type]);
 
-  const onSubmit = handleSubmit((data) => {
-    formAction(data);
+  const onSubmit = handleSubmit((formData) => {
+    formAction({ ...formData, id: id as string });
   });
 
   return (

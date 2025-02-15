@@ -65,7 +65,7 @@ const renderRow = (item: Customer) => (
     <td>
       <div className="flex items-center gap-2">
         <Link href={`/list/customers/${item.id}`}>
-          <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecBlue">
+          <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecGreen">
             <FontAwesomeIcon icon={faEye} className="text-white w-5" />
           </button>
         </Link>

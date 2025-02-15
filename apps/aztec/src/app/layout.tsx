@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "./globals.css";
+import StoreProvider from "./StoreProvider";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -22,7 +23,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={montserrat.className}>
-          {children} <ToastContainer position="bottom-right" theme="dark" />
+          <StoreProvider>
+            {children} <ToastContainer position="bottom-right" theme="dark" />
+          </StoreProvider>
         </body>
       </html>
     </ClerkProvider>

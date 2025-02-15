@@ -27,7 +27,6 @@ const ServiceForm = ({
   });
 
   const onSubmit = handleSubmit((serviceData) => {
-    console.log(serviceData);
     const newService = { id: Date.now().toString(), ...serviceData };
     data.onSave(newService);
     reset({

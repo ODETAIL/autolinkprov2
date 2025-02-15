@@ -56,14 +56,10 @@ export const updateInvoice = async (
   }
 
   try {
-    let customer = await prisma.customer.findUnique({
-      where: { email: data.email },
-    });
-
-    if (customer) {
+    await prisma.$transaction(async (prisma) => {
       await prisma.customer.update({
         where: {
-          id: customer.id,
+          id: data.customerId,
         },
         data: {
           firstName: data.firstName,
@@ -74,18 +70,17 @@ export const updateInvoice = async (
         },
       });
 
-      // revalidatePath("/list/customers");
-    }
-
-    await prisma.invoice.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        paymentType: data.paymentType,
-        status: data.status,
-      },
+      await prisma.invoice.update({
+        where: {
+          id: data.id,
+        },
+        data: {
+          paymentType: data.paymentType,
+          status: data.status,
+        },
+      });
     });
+
     // revalidatePath("/list/invoices");
     return { success: true, error: false };
   } catch (err) {

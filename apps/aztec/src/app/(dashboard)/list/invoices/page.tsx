@@ -4,7 +4,7 @@ import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { calculateTotalPrice } from "@/lib/util";
+import { calculateTotalPrice, formatPhoneNumber } from "@/lib/util";
 import { auth } from "@clerk/nextjs/server";
 import {
   faEye,
@@ -79,18 +79,20 @@ const InvoiceListPage = async ({
           <p className="text-xs text-gray-300">#{item.id}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.customer.phone}</td>
+      <td className="hidden md:table-cell">
+        {formatPhoneNumber(item.customer.phone)}
+      </td>
       <td className="hidden md:table-cell">{item.status}</td>
       <td className="hidden md:table-cell">
         {item.services.map((service) => service.code).join(",")}
       </td>
-      <td className="hidden md:table-cell text-aztecGreen">
+      <td className="hidden md:table-cell text-lg font-semibold ">
         {calculateTotalPrice(item.services)}
       </td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/invoices/${item.id}`}>
-            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecBlue">
+            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecGreen">
               <FontAwesomeIcon icon={faEye} className="text-white w-5" />
             </button>
           </Link>
@@ -151,10 +153,10 @@ const InvoiceListPage = async ({
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlack-light">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlue">
               <FontAwesomeIcon icon={faFilter} className="text-white w-5" />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlack-light">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlue">
               <FontAwesomeIcon icon={faSort} className="text-white w-5" />
             </button>
             {role === "admin" && (

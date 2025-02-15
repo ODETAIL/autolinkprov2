@@ -2,7 +2,7 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import prisma from "@/lib/prisma";
-import { calculateTotalPrice, formatDate } from "@/lib/util";
+import { calculateTotalPrice, formatDate, formatPhoneNumber } from "@/lib/util";
 import {
   faClockRotateLeft,
   faEnvelope,
@@ -70,13 +70,13 @@ const renderRow = (item: InvoiceList) => (
     <td className="hidden md:table-cell">
       {item.services.map((service) => service.code).join(",")}
     </td>
-    <td className="hidden md:table-cell text-aztecGreen">
+    <td className="hidden md:table-cell text-lg font-semibold">
       {calculateTotalPrice(item.services)}
     </td>
     <td>
       <div className="flex items-center gap-2">
         <Link href={`/list/invoices/${item.id}`}>
-          <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecBlue">
+          <button className="w-7 h-7 flex items-center justify-center rounded-full bg-aztecGreen">
             <FontAwesomeIcon icon={faEye} className="text-white w-5" />
           </button>
         </Link>
@@ -121,7 +121,11 @@ const SingleCustomerPage = async ({
   const customer: SingleCustomer = await prisma.customer.findUnique({
     where: { id },
     include: {
-      invoices: true,
+      invoices: {
+        include: {
+          services: true,
+        },
+      },
       _count: {
         select: { invoices: true },
       },
@@ -131,6 +135,7 @@ const SingleCustomerPage = async ({
   if (!customer) {
     return notFound();
   }
+
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
       {/* LEFT */}
@@ -148,6 +153,7 @@ const SingleCustomerPage = async ({
                   table="customer"
                   type={{ label: "update", icon: faPencil }}
                   data={customer}
+                  id={id}
                 />
               </div>
 
@@ -174,7 +180,7 @@ const SingleCustomerPage = async ({
                     icon={faPhone}
                     className="text-aztecBlue w-5"
                   />
-                  <span>{customer.phone}</span>
+                  <span>{formatPhoneNumber(customer.phone)}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <FontAwesomeIcon

@@ -1,27 +1,25 @@
-import prisma from "@/lib/prisma";
+"use client";
+
+import { EventType } from "@/lib/types";
 import BigCalendar from "./BigCalender";
-import { adjustScheduleToCurrentWeek } from "@/lib/util";
+import { useAppDispatch } from "@/lib/hooks";
+import { useEffect } from "react";
+import { setEvents } from "@/lib/features/calendar/calendarSlice";
+import { convertDatesToISO } from "@/lib/util";
 
-const BigCalendarContainer = async () => {
-  const dataRes = await prisma.appointment.findMany({
-    include: {
-      customer: true,
-    },
-  });
+const BigCalendarContainer = ({ data }: { data: EventType[] }) => {
+  const dispatch = useAppDispatch();
 
-  const data = dataRes.map((appointment) => ({
-    id: appointment.id,
-    title: appointment.title,
-    start: appointment.startTime,
-    end: appointment.endTime,
-    resource: appointment.customer,
-  }));
-
-  const schedule = adjustScheduleToCurrentWeek(data);
+  useEffect(() => {
+    if (data.length > 0) {
+      const formattedData = convertDatesToISO(data);
+      dispatch(setEvents(formattedData));
+    }
+  }, [dispatch, data]);
 
   return (
     <div className="h-full">
-      <BigCalendar data={schedule} />
+      <BigCalendar />
     </div>
   );
 };

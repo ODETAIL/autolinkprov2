@@ -13,7 +13,7 @@ export const customerSchema = z.object({
   postalCode: z.string(),
   city: z.string(),
   notes: z.string(),
-  returnCounter: z.number(),
+  returnCounter: z.number().default(1),
   subscriptionWarranty: z.boolean().default(false),
   companyName: z.string(),
 });
@@ -70,12 +70,13 @@ export type EmployeeSchema = z.infer<typeof employeeSchema>;
 
 export const appointmentSchema = z.object({
   id: z.number().optional(),
+  customerId: z.string().optional(),
   firstName: z.string().min(1, { message: "First name is required!" }),
   lastName: z.string().min(1, { message: "Last name is required!" }),
   email: z.string().email({ message: "Invalid email address!" }),
   title: z.string().min(3, { message: "Appointment title is required!" }),
-  startTime: z.date({ message: "Start time is required!" }),
-  endTime: z.date({ message: "End time is required!" }),
+  startTime: z.string({ message: "Start time is required!" }),
+  endTime: z.string({ message: "End time is required!" }),
   phone: z.string().min(1, { message: "Phone is required!" }),
   streetAddress1: z.string().min(1, { message: "Street Address is required!" }),
   notes: z.string(),
@@ -86,22 +87,26 @@ export type AppointmentSchema = z.infer<typeof appointmentSchema>;
 
 export const invoiceSchema = z.object({
   id: z.number().optional(),
+  customerId: z.string().optional(),
+  appointmentId: z.number().optional(),
   firstName: z.string().min(1, { message: "First name is required!" }),
   lastName: z.string().min(1, { message: "Last name is required!" }),
   email: z.string().email({ message: "Invalid email address!" }),
   phone: z.string().min(1, { message: "Phone is required!" }),
   streetAddress1: z.string().min(1, { message: "Street Address is required!" }),
   status: z.enum(["Draft", "Pending", "Paid", "Overdue"]).default("Draft"),
-  paymentType: z.enum([
-    "Debit",
-    "Mastercard",
-    "Cash",
-    "Amex",
-    "Visa",
-    "Cheque",
-    "ETransfer",
-    "Other",
-  ]),
+  paymentType: z
+    .enum([
+      "Debit",
+      "Mastercard",
+      "Cash",
+      "Amex",
+      "Visa",
+      "Cheque",
+      "ETransfer",
+      "Other",
+    ])
+    .default("Debit"),
   services: z.array(serviceSchema).optional(),
 });
 

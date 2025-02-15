@@ -59,7 +59,7 @@ const menuItems = [
       {
         icon: faCoins,
         label: "Billing",
-        href: "/list/billing",
+        href: "/billing",
         visible: ["admin"],
       },
     ],

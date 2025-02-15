@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 
 type ActionType = {
   label: "create" | "update" | "delete";
-  icon: IconDefinition;
+  icon: IconDefinition | null;
 };
 
 const deleteActionMap = {
@@ -25,8 +25,6 @@ const deleteActionMap = {
   invoice: deleteInvoice,
   service: deleteService,
 };
-
-// USE LAZY LOADING
 
 const EmployeeForm = dynamic(() => import("./forms/EmployeeForm"), {
   loading: () => <h1>Loading...</h1>,
@@ -48,20 +46,28 @@ const forms: {
   [key: string]: (
     type: "create" | "update",
     setOpen: Dispatch<SetStateAction<boolean>>,
-    data?: any
+    data?: any,
+    id?: number | string,
+    setOpenEventModal?: Dispatch<SetStateAction<boolean>>
   ) => JSX.Element;
 } = {
   employee: (type, data, setOpen) => (
     <EmployeeForm type={type} data={data} setOpen={setOpen} />
   ),
-  customer: (type, data, setOpen) => (
-    <CustomerForm type={type} data={data} setOpen={setOpen} />
+  customer: (type, data, setOpen, id) => (
+    <CustomerForm type={type} data={data} id={id} setOpen={setOpen} />
   ),
-  appointment: (type, data, setOpen) => (
-    <AppointmentForm type={type} data={data} setOpen={setOpen} />
+  appointment: (type, data, setOpen, id, openEventModal) => (
+    <AppointmentForm
+      type={type}
+      data={data}
+      id={id}
+      setOpen={setOpen}
+      setOpenEventModal={openEventModal}
+    />
   ),
-  invoice: (type, data, setOpen) => (
-    <InvoiceForm type={type} data={data} setOpen={setOpen} />
+  invoice: (type, data, setOpen, id) => (
+    <InvoiceForm type={type} data={data} id={id} setOpen={setOpen} />
   ),
   service: (type, data, setOpen) => (
     <ServiceForm type={type} data={data} setOpen={setOpen} />
@@ -73,12 +79,15 @@ const FormModal = ({
   type,
   data,
   id,
+  openEventModal,
+  setOpenEventModal,
 }: {
   table: "employee" | "customer" | "appointment" | "invoice" | "service";
-
   type: ActionType;
   data?: any;
   id?: number | string;
+  openEventModal?: boolean;
+  setOpenEventModal?: Dispatch<SetStateAction<boolean>>;
 }) => {
   const size = type.label === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
@@ -88,7 +97,7 @@ const FormModal = ({
         ? "bg-aztecBlue"
         : "bg-red-700";
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(openEventModal || false);
 
   const Form = () => {
     const [state, formAction] = useFormState(deleteActionMap[table], {
@@ -102,6 +111,7 @@ const FormModal = ({
       if (state.success) {
         toast(`${table} has been deleted!`);
         setOpen(false);
+
         router.refresh();
       }
     }, [state, router]);
@@ -119,7 +129,7 @@ const FormModal = ({
         </button>
       </form>
     ) : type.label === "create" || type.label === "update" ? (
-      forms[table](type.label, data, setOpen)
+      forms[table](type.label, data, setOpen, id, setOpenEventModal)
     ) : (
       "Form not found!"
     );
@@ -127,13 +137,16 @@ const FormModal = ({
 
   return (
     <>
-      <button
-        className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
-        onClick={() => setOpen(true)}
-      >
-        <FontAwesomeIcon icon={type.icon} className="text-white w-5" />
-      </button>
-      {open && (
+      {type.icon && (
+        <button
+          className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
+          onClick={() => setOpen(true)}
+        >
+          <FontAwesomeIcon icon={type.icon} className="text-white w-5" />
+        </button>
+      )}
+
+      {(open || openEventModal) && (
         <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
           <div
             className={`bg-aztecBlack-dark p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%]  ${table === "invoice" || table === "appointment" ? "xl:w-[70%]" : "xl:w-[50%] 2xl:w-[40%]"}`}
@@ -141,7 +154,9 @@ const FormModal = ({
             <Form />
             <div
               className="absolute top-4 right-4 cursor-pointer"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpenEventModal ? setOpenEventModal(false) : setOpen(false)
+              }
             >
               <FontAwesomeIcon icon={faClose} className="text-white w-5" />
             </div>
