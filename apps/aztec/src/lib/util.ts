@@ -1,5 +1,6 @@
 import { Customer, Service } from "@prisma/client";
 import { EventType } from "./types";
+import moment from "moment";
 
 export const formatDate = (date: Date): string => {
   return date.toLocaleDateString("en-US", {
@@ -54,7 +55,7 @@ export const adjustScheduleToCurrentWeek = (
     title: string;
     start: Date;
     end: Date;
-    description: string;
+    description: string | null;
     resource: {
       customer: Customer | null;
       services: Service[] | null;
@@ -65,7 +66,7 @@ export const adjustScheduleToCurrentWeek = (
   title: string;
   start: Date;
   end: Date;
-  description: string;
+  description: string | null;
   resource: {
     customer: Customer | null;
     services: Service[] | null;
@@ -154,4 +155,11 @@ export const formatPhoneNumber = (phone: string) => {
 
   // Return the original phone if it's not 10 digits
   return phone;
+};
+
+export const getCurrentMonthRange = () => {
+  const startDate = moment().startOf("month").toISOString(); // First day of the month (e.g., "2025-02-01T00:00:00.000Z")
+  const endDate = moment().endOf("month").toISOString(); // Last day of the month (e.g., "2025-02-28T23:59:59.999Z")
+
+  return { startDate, endDate };
 };

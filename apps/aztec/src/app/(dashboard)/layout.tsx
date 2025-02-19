@@ -1,3 +1,4 @@
+import InitCustomer from "@/components/InitCustomer";
 import Menu from "@/components/Menu";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
@@ -23,6 +24,7 @@ export default function DashboardLayout({
       {/* RIGHT */}
       <div className="w-[86%] md:w-[92%] lg:w-[84%] xl:w-[86%] bg-aztecBlack-light overflow-scroll flex flex-col">
         <Navbar />
+        <InitCustomer />
         {children}
       </div>
     </div>

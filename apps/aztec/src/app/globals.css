@@ -6,6 +6,10 @@
   --secondaryWhite: #dcdcdc;
 }
 
+.react-datepicker__time-list-item--disabled {
+  display: none !important;
+}
+
 .react-calendar {
   width: 100% !important;
   border: none !important;

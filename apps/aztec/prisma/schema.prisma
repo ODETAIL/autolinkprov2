@@ -11,7 +11,8 @@ model Company {
   id        String                 @id
   name      String                 @unique
   employees EmployeesOnCompanies[]
-  customers CustomersOnCompanies[]
+  customer  Customer[]
+  revenue   Revenue[]
 }
 
 model Employee {
@@ -35,17 +36,6 @@ model EmployeesOnCompanies {
   updatedAt  DateTime @updatedAt
 
   @@id([companyId, employeeId])
-}
-
-model CustomersOnCompanies {
-  company    Company  @relation(fields: [companyId], references: [id])
-  companyId  String
-  customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@id([companyId, customerId])
 }
 
 model Invoice {
@@ -83,7 +73,7 @@ model Appointment {
   title       String
   startTime   DateTime
   endTime     DateTime
-  description String
+  description String?
   services    Service[]
   invoice     Invoice[]
   customerId  String?
@@ -93,24 +83,38 @@ model Appointment {
 }
 
 model Customer {
-  id             String                 @id @default(dbgenerated("gen_random_uuid()"))
+  id             String        @id @default(dbgenerated("gen_random_uuid()"))
   firstName      String
   lastName       String?
   city           String?
-  email          String                 @unique
-  phone          String                 @unique
+  email          String        @unique
+  phone          String        @unique
   postalCode     String?
   streetAddress1 String
   streetAddress2 String?
   notes          String?
   subscription   Boolean?
   returnCounter  Int?
-  lastVisit      DateTime               @default(now())
-  company        CustomersOnCompanies[]
+  lastVisit      DateTime      @default(now())
   invoices       Invoice[]
   appointments   Appointment[]
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
+  company        Company?      @relation(fields: [companyId], references: [id])
+  companyId      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Revenue {
+  id               Int         @id @default(autoincrement())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  paymentType      PaymentType
+  status           Status
+  total            Int
+  expenses         Int?
+  transactionCount Int?
+  company          Company?    @relation(fields: [companyId], references: [id])
+  companyId        String?
 }
 
 enum PaymentType {

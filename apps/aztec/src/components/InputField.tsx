@@ -26,7 +26,7 @@ const InputField = ({
         <textarea
           {...register(name)}
           defaultValue={defaultValue}
-          className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark h-10 lg:h-28 resize-none"
+          className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark h-10 lg:h-24 resize-none"
           {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
       ) : (

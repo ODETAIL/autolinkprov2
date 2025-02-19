@@ -5,7 +5,7 @@ export type EventType = {
   title: string;
   start: Date | string;
   end: Date | string;
-  description: string;
+  description: string | null;
   resource: {
     customer: Customer | null;
     services: Service[] | null;

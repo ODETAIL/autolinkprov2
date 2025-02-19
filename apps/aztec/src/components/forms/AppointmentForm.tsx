@@ -21,9 +21,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import useIsMobile from "@/lib/useIsMobile";
 import moment from "moment";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { updateEvent } from "@/lib/features/calendar/calendarSlice";
 import { convertDatesToISO } from "@/lib/util";
+import Select, { SingleValue } from "react-select";
+import { RootState } from "@/lib/store";
+import { Customer } from "@prisma/client";
+import DatePickerField from "../DateField";
 
 const AppointmentForm = ({
   type,
@@ -41,6 +45,7 @@ const AppointmentForm = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<AppointmentSchema>({
     resolver: zodResolver(appointmentSchema),
@@ -53,6 +58,12 @@ const AppointmentForm = ({
   const isMobile = useIsMobile();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const customers = useAppSelector(
+    (state: RootState) => state.customers.customers
+  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
   const [state, formAction] = useFormState(
     type === "create" ? createAppointment : updateAppointment,
     {
@@ -82,6 +93,7 @@ const AppointmentForm = ({
     formAction({
       ...formData,
       id: id as number,
+      customerId: type === "update" && data.resource?.customer.id,
       services,
     });
   });
@@ -89,6 +101,10 @@ const AppointmentForm = ({
   const handleServiceAdded = (newService: ServiceSchema) => {
     setServices((prev: any) => [...prev, newService]);
     setShowServiceModal(false);
+  };
+
+  const handleCustomerChange = (selectedOption: SingleValue<Customer>) => {
+    setSelectedCustomer(selectedOption);
   };
 
   return (
@@ -111,14 +127,73 @@ const AppointmentForm = ({
             <span className="text-xs text-gray-300 font-medium">
               Customer Information
             </span>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-gray-400">
+                Select Existing Customer
+              </label>
+              <Select
+                options={customers.map((customer) => ({
+                  value: customer.id,
+                  label: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
+                  ...customer,
+                }))}
+                value={selectedCustomer}
+                onChange={handleCustomerChange}
+                placeholder="Search for a customer..."
+                isClearable
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    backgroundColor: "#181818",
+                    color: "white",
+                    cursor: "pointer",
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "#1194e4"
+                      : isFocused
+                        ? "#212121"
+                        : "#4a4a4a",
+                    color: "white",
+                    cursor: "pointer",
+                  }),
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "white",
+                  }),
+                  placeholder: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "#aaa",
+                  }),
+                  singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "white",
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: "#4a4a4a",
+                    borderRadius: "8px",
+                  }),
+                  menuList: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: "#4a4a4a",
+                    borderRadius: "8px",
+                    padding: 0,
+                  }),
+                }}
+              />
+            </div>
             <div className="flex justify-between flex-wrap gap-2 md:gap-4">
               <InputField
                 label="First Name"
                 name="firstName"
                 defaultValue={
-                  data?.resource?.customer
-                    ? data?.resource?.customer.firstName
-                    : data?.firstName
+                  selectedCustomer
+                    ? selectedCustomer.firstName
+                    : data?.resource?.customer
+                      ? data?.resource?.customer.firstName
+                      : data?.firstName
                 }
                 register={register}
                 error={errors.firstName}
@@ -127,9 +202,11 @@ const AppointmentForm = ({
                 label="Last Name"
                 name="lastName"
                 defaultValue={
-                  data?.resource?.customer
-                    ? data?.resource?.customer.lastName
-                    : data?.lastName
+                  selectedCustomer
+                    ? selectedCustomer.lastName
+                    : data?.resource?.customer
+                      ? data?.resource?.customer.lastName
+                      : data?.lastName
                 }
                 register={register}
                 error={errors.lastName}
@@ -138,9 +215,11 @@ const AppointmentForm = ({
                 label="Email"
                 name="email"
                 defaultValue={
-                  data?.resource?.customer
-                    ? data?.resource?.customer.email
-                    : data?.email
+                  selectedCustomer
+                    ? selectedCustomer.email
+                    : data?.resource?.customer
+                      ? data?.resource?.customer.email
+                      : data?.email
                 }
                 register={register}
                 error={errors?.email}
@@ -149,9 +228,11 @@ const AppointmentForm = ({
                 label="Phone"
                 name="phone"
                 defaultValue={
-                  data?.resource?.customer
-                    ? data?.resource?.customer.phone
-                    : data?.phone
+                  selectedCustomer
+                    ? selectedCustomer.phone
+                    : data?.resource?.customer
+                      ? data?.resource?.customer.phone
+                      : data?.phone
                 }
                 register={register}
                 error={errors.phone}
@@ -160,9 +241,11 @@ const AppointmentForm = ({
                 label="Address"
                 name="streetAddress1"
                 defaultValue={
-                  data?.resource?.customer
-                    ? data?.resource?.customer.streetAddress1
-                    : data?.streetAddress1
+                  selectedCustomer
+                    ? selectedCustomer.streetAddress1
+                    : data?.resource?.customer
+                      ? data?.resource?.customer.streetAddress1
+                      : data?.streetAddress1
                 }
                 register={register}
                 error={errors.streetAddress1}
@@ -179,8 +262,7 @@ const AppointmentForm = ({
                 register={register}
                 error={errors.title}
               />
-
-              <InputField
+              <DatePickerField
                 label="Start Time"
                 name="startTime"
                 defaultValue={
@@ -188,11 +270,10 @@ const AppointmentForm = ({
                     ? moment(data.start).format("YYYY-MM-DDTHH:mm")
                     : data?.startTime
                 }
-                register={register}
+                control={control}
                 error={errors.startTime}
-                type="datetime-local"
               />
-              <InputField
+              <DatePickerField
                 label="End Time"
                 name="endTime"
                 defaultValue={
@@ -200,19 +281,16 @@ const AppointmentForm = ({
                     ? moment(data.end).format("YYYY-MM-DDTHH:mm")
                     : data?.endTime
                 }
-                register={register}
+                control={control}
                 error={errors.endTime}
-                type="datetime-local"
               />
               <InputField
                 label="Notes"
-                name="notes"
+                name="description"
                 type="textarea"
-                defaultValue={
-                  data?.description ? data?.description : data?.notes
-                }
+                defaultValue={data?.description}
                 register={register}
-                error={errors.notes}
+                error={errors.description}
               />
 
               {errors.startTime?.message && errors.endTime?.message && (

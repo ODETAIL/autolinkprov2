@@ -2,7 +2,7 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import prisma from "@/lib/prisma";
-import { calculateTotalPrice, formatDate, formatPhoneNumber } from "@/lib/util";
+import { calculateTotalPrice, formatPhoneNumber } from "@/lib/util";
 import {
   faCheckCircle,
   faClockRotateLeft,
@@ -221,10 +221,10 @@ const SingleCustomerPage = async ({
             </h1>
             <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
               <div className="flex items-center gap-4 self-end">
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlack-light">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlue">
                   <FontAwesomeIcon icon={faFilter} className="text-white w-5" />
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlack-light">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-aztecBlue">
                   <FontAwesomeIcon icon={faSort} className="text-white w-5" />
                 </button>
 

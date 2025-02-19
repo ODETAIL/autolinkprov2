@@ -13,7 +13,6 @@ export const createEmployee = async (
   currentState: CurrentState,
   data: EmployeeSchema
 ) => {
-  console.log(data);
   try {
     const user = await clerkClient.users.createUser({
       username: data.username,

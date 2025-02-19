@@ -89,6 +89,7 @@ const BigCalendar = () => {
     if (appointment.resource.customer) {
       const updatedEvent = {
         id: appointment.id,
+        customerId: appointment.resource.customer.id,
         firstName: appointment.resource.customer.firstName,
         lastName: appointment.resource.customer.lastName,
         email: appointment.resource.customer.email,

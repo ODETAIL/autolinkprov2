@@ -19,6 +19,10 @@ import { useFormState } from "react-dom";
 import { createInvoice, updateInvoice } from "@/lib/actions/invoice";
 import useIsMobile from "@/lib/useIsMobile";
 import { toast } from "react-toastify";
+import { Customer } from "@prisma/client";
+import { useAppSelector } from "@/lib/hooks";
+import { RootState } from "@/lib/store";
+import Select, { SingleValue } from "react-select";
 
 const InvoiceForm = ({
   type,
@@ -44,6 +48,12 @@ const InvoiceForm = ({
   const [showServiceModal, setShowServiceModal] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
+  const customers = useAppSelector(
+    (state: RootState) => state.customers.customers
+  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
   const [state, formAction] = useFormState(
     type === "create" ? createInvoice : updateInvoice,
     {
@@ -64,7 +74,7 @@ const InvoiceForm = ({
     formAction({
       ...formData,
       id: id as number,
-      customerId: data.customerId,
+      customerId: type === "update" && data.customerId,
       services,
     });
   });
@@ -73,6 +83,11 @@ const InvoiceForm = ({
     setServices((prev: any) => [...prev, newService]);
     setShowServiceModal(false);
   };
+
+  const handleCustomerChange = (selectedOption: SingleValue<Customer>) => {
+    setSelectedCustomer(selectedOption);
+  };
+
   return (
     <form
       className="flex flex-col gap-4 md:gap-8 text-white"
@@ -93,39 +108,126 @@ const InvoiceForm = ({
             <span className="text-xs text-gray-300 font-medium">
               Customer Information
             </span>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-gray-400">
+                Select Existing Customer
+              </label>
+              <Select
+                options={customers.map((customer) => ({
+                  value: customer.id,
+                  label: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
+                  ...customer,
+                }))}
+                value={selectedCustomer}
+                onChange={handleCustomerChange}
+                placeholder="Search for a customer..."
+                isClearable
+                styles={{
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: "#181818",
+                    color: "white",
+                    cursor: "pointer",
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "#1194e4"
+                      : isFocused
+                        ? "#212121"
+                        : "#4a4a4a",
+                    color: "white",
+                    cursor: "pointer",
+                  }),
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "white",
+                  }),
+                  placeholder: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "#aaa",
+                  }),
+                  singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: "white",
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: "#4a4a4a",
+                    borderRadius: "8px",
+                  }),
+                  menuList: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: "#4a4a4a",
+                    borderRadius: "8px",
+                    padding: 0,
+                  }),
+                }}
+              />
+            </div>
             <div className="flex justify-between flex-wrap gap-4">
               <InputField
                 label="First Name"
                 name="firstName"
-                defaultValue={data?.customer.firstName}
+                defaultValue={
+                  selectedCustomer
+                    ? selectedCustomer.firstName
+                    : data?.customer
+                      ? data?.customer.firstName
+                      : data?.firstName
+                }
                 register={register}
                 error={errors.firstName}
               />
               <InputField
                 label="Last Name"
                 name="lastName"
-                defaultValue={data?.customer.lastName}
+                defaultValue={
+                  selectedCustomer
+                    ? selectedCustomer.lastName
+                    : data?.customer
+                      ? data?.customer.lastName
+                      : data?.lastName
+                }
                 register={register}
                 error={errors.lastName}
               />
               <InputField
                 label="Email"
                 name="email"
-                defaultValue={data?.customer.email}
+                defaultValue={
+                  selectedCustomer
+                    ? selectedCustomer.email
+                    : data?.customer
+                      ? data?.customer.email
+                      : data?.email
+                }
                 register={register}
                 error={errors?.email}
               />
               <InputField
                 label="Phone"
                 name="phone"
-                defaultValue={data?.customer.phone}
+                defaultValue={
+                  selectedCustomer
+                    ? selectedCustomer.phone
+                    : data?.customer
+                      ? data?.customer.phone
+                      : data?.phone
+                }
                 register={register}
                 error={errors.phone}
               />
               <InputField
                 label="Address"
                 name="streetAddress1"
-                defaultValue={data?.customer.streetAddress1}
+                defaultValue={
+                  selectedCustomer
+                    ? selectedCustomer.streetAddress1
+                    : data?.customer
+                      ? data?.customer.streetAddress1
+                      : data?.streetAddress1
+                }
                 register={register}
                 error={errors.streetAddress1}
               />

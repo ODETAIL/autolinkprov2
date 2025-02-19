@@ -45,7 +45,7 @@ export const serviceSchema = z.object({
   code: z.string().min(1, { message: "Code is required!" }),
   quantity: z.preprocess((val) => Number(val) || 1, z.number().min(1)),
   price: z.string().min(1, { message: "price is required!" }),
-  notes: z.string(),
+  notes: z.string().optional(),
 });
 
 export type ServiceSchema = z.infer<typeof serviceSchema>;
@@ -79,7 +79,7 @@ export const appointmentSchema = z.object({
   endTime: z.string({ message: "End time is required!" }),
   phone: z.string().min(1, { message: "Phone is required!" }),
   streetAddress1: z.string().min(1, { message: "Street Address is required!" }),
-  notes: z.string(),
+  description: z.string().optional(),
   services: z.array(serviceSchema).optional(),
 });
 

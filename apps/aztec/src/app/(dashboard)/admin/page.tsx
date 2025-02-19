@@ -18,7 +18,7 @@ const AdminPage = ({
           <UserCard type="employee" />
           <UserCard type="customer" />
           <UserCard type="appointment" />
-          <UserCard type="Earning" />
+          <UserCard type="revenue" />
         </div>
         {/* MIDDLE CHARTS */}
         <div className="flex gap-4 flex-col lg:flex-row">

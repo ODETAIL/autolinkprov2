@@ -13,10 +13,6 @@ export const createCustomer = async (
   data: CustomerSchema
 ) => {
   try {
-    if (!data.id) {
-      return { success: false, error: true };
-    }
-
     await prisma.customer.create({
       data: {
         firstName: data.firstName,

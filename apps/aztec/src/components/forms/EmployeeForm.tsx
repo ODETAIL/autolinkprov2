@@ -44,7 +44,6 @@ const EmployeeForm = ({
   }, [state, router, type]);
 
   const onSubmit = handleSubmit((formData) => {
-
     formAction(formData);
   });
 

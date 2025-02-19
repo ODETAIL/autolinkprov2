@@ -49,6 +49,7 @@ const CustomerForm = ({
     formAction({ ...formData, id: id as string });
   });
 
+  console.log(data);
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold text-white">
@@ -117,10 +118,18 @@ const CustomerForm = ({
         <InputField
           label="Warranty"
           name="subscriptionWarranty"
-          defaultValue={data?.subscriptionWarranty}
+          defaultValue={data?.subscription}
           register={register}
           error={errors.subscriptionWarranty}
           type="checkbox"
+        />
+        <InputField
+          label="Notes"
+          name="notes"
+          type="textarea"
+          defaultValue={data?.notes}
+          register={register}
+          error={errors.notes}
         />
       </div>
       <button className="bg-aztecBlue text-white p-2 rounded-md">
