@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import InputField from "../InputField";
 import {
   appointmentSchema,
@@ -46,6 +46,7 @@ const AppointmentForm = ({
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<AppointmentSchema>({
     resolver: zodResolver(appointmentSchema),
@@ -105,6 +106,20 @@ const AppointmentForm = ({
 
   const handleCustomerChange = (selectedOption: SingleValue<Customer>) => {
     setSelectedCustomer(selectedOption);
+    if (selectedOption) {
+      setValue("firstName", selectedOption.firstName);
+      setValue("lastName", selectedOption.lastName || "");
+      setValue("email", selectedOption.email);
+      setValue("phone", selectedOption.phone);
+      setValue("streetAddress1", selectedOption.streetAddress1);
+    } else {
+      // Clear the fields if no customer is selected
+      setValue("firstName", "");
+      setValue("lastName", "");
+      setValue("email", "");
+      setValue("phone", "");
+      setValue("streetAddress1", "");
+    }
   };
 
   return (
@@ -131,58 +146,71 @@ const AppointmentForm = ({
               <label className="text-xs text-gray-400">
                 Select Existing Customer
               </label>
-              <Select
-                options={customers.map((customer) => ({
-                  value: customer.id,
-                  label: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
-                  ...customer,
-                }))}
-                value={selectedCustomer}
-                onChange={handleCustomerChange}
-                placeholder="Search for a customer..."
-                isClearable
-                styles={{
-                  control: (baseStyles, state) => ({
-                    ...baseStyles,
-                    backgroundColor: "#181818",
-                    color: "white",
-                    cursor: "pointer",
-                  }),
-                  option: (baseStyles, { isFocused, isSelected }) => ({
-                    ...baseStyles,
-                    backgroundColor: isSelected
-                      ? "#1194e4"
-                      : isFocused
-                        ? "#212121"
-                        : "#4a4a4a",
-                    color: "white",
-                    cursor: "pointer",
-                  }),
-                  input: (baseStyles) => ({
-                    ...baseStyles,
-                    color: "white",
-                  }),
-                  placeholder: (baseStyles) => ({
-                    ...baseStyles,
-                    color: "#aaa",
-                  }),
-                  singleValue: (baseStyles) => ({
-                    ...baseStyles,
-                    color: "white",
-                  }),
-                  menu: (baseStyles) => ({
-                    ...baseStyles,
-                    backgroundColor: "#4a4a4a",
-                    borderRadius: "8px",
-                  }),
-                  menuList: (baseStyles) => ({
-                    ...baseStyles,
-                    backgroundColor: "#4a4a4a",
-                    borderRadius: "8px",
-                    padding: 0,
-                  }),
-                }}
-              />
+
+              {type === "create" && (
+                <Controller
+                  name="customerId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={customers.map((customer) => ({
+                        value: customer.id,
+                        label: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
+                        ...customer,
+                      }))}
+                      value={selectedCustomer}
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption?.id || "");
+                        handleCustomerChange(selectedOption);
+                      }}
+                      placeholder="Search for a customer..."
+                      isClearable
+                      styles={{
+                        control: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: "#181818",
+                          color: "white",
+                          cursor: "pointer",
+                        }),
+                        option: (baseStyles, { isFocused, isSelected }) => ({
+                          ...baseStyles,
+                          backgroundColor: isSelected
+                            ? "#1194e4"
+                            : isFocused
+                              ? "#212121"
+                              : "#4a4a4a",
+                          color: "white",
+                          cursor: "pointer",
+                        }),
+                        input: (baseStyles) => ({
+                          ...baseStyles,
+                          color: "white",
+                        }),
+                        placeholder: (baseStyles) => ({
+                          ...baseStyles,
+                          color: "#aaa",
+                        }),
+                        singleValue: (baseStyles) => ({
+                          ...baseStyles,
+                          color: "white",
+                        }),
+                        menu: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: "#4a4a4a",
+                          borderRadius: "8px",
+                        }),
+                        menuList: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: "#4a4a4a",
+                          borderRadius: "8px",
+                          padding: 0,
+                        }),
+                      }}
+                    />
+                  )}
+                />
+              )}
             </div>
             <div className="flex justify-between flex-wrap gap-2 md:gap-4">
               <InputField

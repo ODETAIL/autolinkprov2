@@ -1,7 +1,12 @@
 import FormModal from "@/components/FormModal";
+import SendButton from "@/components/SendButton";
 import prisma from "@/lib/prisma";
-import { calculateInvoiceTotals, createDateAsUTC } from "@/lib/util";
-import { faEye, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { calculateInvoiceTotals } from "@/lib/util";
+import {
+  faEye,
+  faPaperPlane,
+  faPencil,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Customer, Invoice, Service } from "@prisma/client";
 import moment from "moment";
@@ -61,6 +66,7 @@ const SingleInvoicePage = async ({
                       />
                     </button>
                   </Link>
+                  <SendButton invoiceId={invoiceId} />
                 </div>
               </div>
 

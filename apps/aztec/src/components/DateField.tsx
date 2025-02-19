@@ -1,3 +1,4 @@
+import { convertDatesToISO } from "@/lib/util";
 import React from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -24,12 +25,14 @@ const DatePickerField = ({
       <Controller
         name={name}
         control={control}
-        defaultValue={defaultValue || null}
+        defaultValue={defaultValue ? new Date(defaultValue).toISOString() : ""}
         render={({ field }) => (
           <DatePicker
-            {...field}
-            selected={field.value as Date | null}
-            onChange={(date: Date | null) => field.onChange(date)}
+            name={name}
+            selected={field.value ? new Date(field.value) : null}
+            onChange={(date) => {
+              field.onChange(date ? date.toISOString() : "");
+            }}
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full bg-aztecBlack-dark"
             showTimeSelect
             dateFormat="Pp"
